@@ -1,4 +1,4 @@
-# 🧹 CleanPro - Empresa de Limpieza
+#  CleanPro - Empresa de Limpieza
 
 **Autor:** Cristian Alvarado Guerrero  
 **Ficha:** 3311987  
@@ -11,7 +11,7 @@
 
 ---
 
-## 🎯 Objetivo del dominio
+##  Objetivo del dominio
 
 CleanPro es una empresa bogotana de limpieza que ofrece servicios residenciales, corporativos, industriales y de desinfección. La app permite:
 
@@ -23,7 +23,7 @@ CleanPro es una empresa bogotana de limpieza que ofrece servicios residenciales,
 
 ---
 
-## 🛠️ Stack Tecnológico (Semanas 1-5)
+##  Stack Tecnológico (Semanas 1-5)
 
 | Tecnología | Versión | Uso | Semana |
 |------------|---------|-----|--------|
@@ -38,7 +38,7 @@ CleanPro es una empresa bogotana de limpieza que ofrece servicios residenciales,
 
 ---
 
-## 📚 Cumplimiento por semana
+##  Cumplimiento por semana
 
 ### Semana 1 - Core Components y Flexbox
 - [x] View, Text, Image, ScrollView, Pressable
@@ -88,7 +88,7 @@ CleanPro es una empresa bogotana de limpieza que ofrece servicios residenciales,
 
 ---
 
-## 🚀 Cómo correr
+##  Cómo correr
 
 ```bash
 # 1. Instalar dependencias
@@ -112,7 +112,7 @@ Si no existe, usa mock local con delay + jsonplaceholder para demo real.
 
 ---
 
-## 📁 Estructura
+##  Estructura
 
 ```
 src/
@@ -142,7 +142,7 @@ src/
 
 ---
 
-## 🎨 Decisiones de diseño (Dominio Limpieza)
+##  Decisiones de diseño (Dominio Limpieza)
 
 - **Paleta:** Cyan #22d3ee (limpieza, frescura) + Emerald #34d399 (desinfección, éxito) + dark background #0d1117 (profesional)
 - **Categorías con colores:** residencial cyan, oficina morado, vidrios azul, postObra amarillo, industrial rosa, desinfeccion verde
@@ -152,7 +152,7 @@ src/
 
 ---
 
-## 📸 Screenshots (tomar en simulador)
+##  Screenshots (tomar en simulador)
 
 1. Servicios lista con búsqueda
 2. Filtro por categoría
@@ -164,12 +164,12 @@ src/
 
 ---
 
-## 🔗 Repo oficial bootcamp
+##  Repo oficial bootcamp
 
 https://github.com/ergrato-dev/bc-reactnative
 
 ---
 
-## 👤 Autor
+##  Autor
 
 Cristian Alvarado Guerrero - Ficha 3311987 - SENA CGMLTI Bogotá - 2026

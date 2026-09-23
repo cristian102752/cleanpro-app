@@ -1,6 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { SettingsScreen } from '../screens/SettingsScreen';
 import { Ionicons } from '@expo/vector-icons';
 
 import { ServicesListScreen } from '../screens/ServicesListScreen';
@@ -58,6 +59,7 @@ export function RootNavigator(): React.JSX.Element {
       })}
     >
       <Tab.Screen name="Servicios" component={ServicesStackNavigator} />
+      <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: 'Ajustes', headerShown: true }} />
       <Tab.Screen name="Clientes" component={ClientsScreen} options={{ title: 'Clientes', headerShown: true }} />
       <Tab.Screen name="Personal" component={StaffScreen} options={{ title: 'Personal', headerShown: true }} />
       <Tab.Screen name="Agenda" component={AgendaScreen} options={{ title: 'Agenda', headerShown: true }} />

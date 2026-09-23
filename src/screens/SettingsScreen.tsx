@@ -5,6 +5,7 @@ import { useThemeColors } from '../hooks/useThemeColors';
 import { useClearCache } from '../hooks/useOfflineCache';
 import { SPACING, RADIUS, ThemeColors } from '../theme';
 import { useFavoritesStore } from '../stores/favoritesStore';
+import { useAuthStore } from '../stores/authStore';
 
 export function SettingsScreen(): React.JSX.Element {
   const COLORS = useThemeColors(); // FIX Semana 07 - tema dinámico
@@ -12,6 +13,7 @@ export function SettingsScreen(): React.JSX.Element {
   const { clearCache } = useClearCache();
   const clearFavorites = useFavoritesStore((s) => s.clearFavorites);
   const favCount = useFavoritesStore((s) => s.favoriteServiceIds.length);
+  const { user, logout } = useAuthStore(); // FIX: sesión visible + logout
 
   const styles = useMemo(() => makeStyles(COLORS), [COLORS]);
 

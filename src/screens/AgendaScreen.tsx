@@ -2,10 +2,13 @@ import React, { useState, useMemo } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, Pressable } from 'react-native';
 import { useSchedules } from '../hooks/useServices';
 import { ScheduleCard } from '../components/ScheduleCard';
-import { COLORS, TYPOGRAPHY, SPACING, RADIUS } from '../theme';
+import { TYPOGRAPHY, SPACING, RADIUS, ThemeColors } from '../theme';
+import { useThemeColors } from '../hooks/useThemeColors';
 import { Schedule } from '../types';
 
 export function AgendaScreen(): React.JSX.Element {
+  const COLORS = useThemeColors();
+  const styles = useMemo(() => makeStyles(COLORS), [COLORS]);
   const { data, isLoading } = useSchedules();
   const [filter, setFilter] = useState<Schedule['status'] | 'todos'>('todos');
 
@@ -50,16 +53,18 @@ export function AgendaScreen(): React.JSX.Element {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  centered: { flex: 1, backgroundColor: COLORS.background, alignItems: 'center', justifyContent: 'center', gap: SPACING.md },
-  loading: { color: COLORS.textSecondary },
-  filters: { flexDirection: 'row', padding: SPACING.base, gap: SPACING.sm, flexWrap: 'wrap' },
-  chip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: RADIUS.full, backgroundColor: COLORS.surface, borderWidth: 1, borderColor: COLORS.border },
-  chipActive: { backgroundColor: COLORS.accentDim, borderColor: COLORS.accent },
-  chipText: { fontSize: 12, color: COLORS.textSecondary, textTransform: 'capitalize' },
-  chipTextActive: { color: COLORS.accent, fontWeight: '700' },
-  list: { padding: SPACING.base, paddingTop: 0 },
-  header: { ...TYPOGRAPHY.label, marginBottom: SPACING.md, textTransform: 'uppercase' },
-  empty: { ...TYPOGRAPHY.caption, textAlign: 'center', marginTop: 40 },
-});
+function makeStyles(COLORS: ThemeColors) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: COLORS.background },
+    centered: { flex: 1, backgroundColor: COLORS.background, alignItems: 'center', justifyContent: 'center', gap: SPACING.md },
+    loading: { color: COLORS.textSecondary },
+    filters: { flexDirection: 'row', padding: SPACING.base, gap: SPACING.sm, flexWrap: 'wrap' },
+    chip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: RADIUS.full, backgroundColor: COLORS.surface, borderWidth: 1, borderColor: COLORS.border },
+    chipActive: { backgroundColor: COLORS.accentDim, borderColor: COLORS.accent },
+    chipText: { fontSize: 12, color: COLORS.textSecondary, textTransform: 'capitalize' },
+    chipTextActive: { color: COLORS.accent, fontWeight: '700' },
+    list: { padding: SPACING.base, paddingTop: 0 },
+    header: { fontSize: TYPOGRAPHY.label.fontSize, fontWeight: TYPOGRAPHY.label.fontWeight, color: COLORS.textSecondary, marginBottom: SPACING.md, textTransform: 'uppercase' },
+    empty: { fontSize: TYPOGRAPHY.caption.fontSize, color: COLORS.textSecondary, textAlign: 'center', marginTop: 40 },
+  });
+}

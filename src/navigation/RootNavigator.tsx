@@ -1,7 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { SettingsScreen } from '../screens/SettingsScreen';
 import { Ionicons } from '@expo/vector-icons';
 
 import { ServicesListScreen } from '../screens/ServicesListScreen';
@@ -12,7 +11,8 @@ import { ClientsScreen } from '../screens/ClientsScreen';
 import { StaffScreen } from '../screens/StaffScreen';
 import { AgendaScreen } from '../screens/AgendaScreen';
 import { FavoritesScreen } from '../screens/FavoritesScreen';
-import { COLORS } from '../theme';
+import { SettingsScreen } from '../screens/SettingsScreen';
+import { useThemeColors } from '../hooks/useThemeColors';
 import { RootTabParamList, ServicesStackParamList } from './types';
 import { useFavoritesStore } from '../stores/favoritesStore';
 
@@ -20,6 +20,7 @@ const Tab = createBottomTabNavigator<RootTabParamList>();
 const ServicesStack = createNativeStackNavigator<ServicesStackParamList>();
 
 function ServicesStackNavigator(): React.JSX.Element {
+  const COLORS = useThemeColors();
   return (
     <ServicesStack.Navigator
       screenOptions={{
@@ -38,6 +39,7 @@ function ServicesStackNavigator(): React.JSX.Element {
 }
 
 export function RootNavigator(): React.JSX.Element {
+  const COLORS = useThemeColors();
   const favCount = useFavoritesStore((s) => s.favoriteServiceIds.length);
 
   return (
@@ -46,6 +48,7 @@ export function RootNavigator(): React.JSX.Element {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName: keyof typeof Ionicons.glyphMap = 'home';
           if (route.name === 'Servicios') iconName = focused ? 'sparkles' : 'sparkles-outline';
+          else if (route.name === 'Ajustes') iconName = focused ? 'settings' : 'settings-outline';
           else if (route.name === 'Clientes') iconName = focused ? 'people' : 'people-outline';
           else if (route.name === 'Personal') iconName = focused ? 'people-circle' : 'people-circle-outline';
           else if (route.name === 'Agenda') iconName = focused ? 'calendar' : 'calendar-outline';
@@ -55,11 +58,14 @@ export function RootNavigator(): React.JSX.Element {
         tabBarActiveTintColor: COLORS.accent,
         tabBarInactiveTintColor: COLORS.textMuted,
         headerShown: false,
+        headerStyle: { backgroundColor: COLORS.surface },
+        headerTintColor: COLORS.textPrimary,
+        headerTitleStyle: { fontWeight: 'bold' },
         tabBarStyle: { backgroundColor: COLORS.surface, borderTopColor: COLORS.border, paddingBottom: 4, height: 60 },
       })}
     >
       <Tab.Screen name="Servicios" component={ServicesStackNavigator} />
-      <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: 'Ajustes', headerShown: true }} />
+      <Tab.Screen name="Ajustes" component={SettingsScreen} options={{ title: 'Ajustes', headerShown: true }} />
       <Tab.Screen name="Clientes" component={ClientsScreen} options={{ title: 'Clientes', headerShown: true }} />
       <Tab.Screen name="Personal" component={StaffScreen} options={{ title: 'Personal', headerShown: true }} />
       <Tab.Screen name="Agenda" component={AgendaScreen} options={{ title: 'Agenda', headerShown: true }} />

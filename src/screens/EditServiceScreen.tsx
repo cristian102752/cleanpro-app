@@ -1,11 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { ServicesStackParamList } from '../navigation/types';
 import { useServiceById, useUpdateService } from '../hooks/useServices';
-import { COLORS, SPACING, RADIUS } from '../theme';
+import { useThemeColors } from '../hooks/useThemeColors';
+import { SPACING, RADIUS, ThemeColors } from '../theme';
 import { serviceSchema, ServiceFormData } from '../schemas/serviceSchema';
 import { FormField, CategoryField } from '../components/FormField';
 
@@ -14,6 +15,8 @@ type EditRoute = RouteProp<ServicesStackParamList, 'EditService'>;
 export function EditServiceScreen(): React.JSX.Element {
   const route = useRoute<EditRoute>();
   const navigation = useNavigation();
+  const COLORS = useThemeColors();
+  const styles = useMemo(() => makeStyles(COLORS), [COLORS]);
   const { id } = route.params;
   const { data: service, isLoading } = useServiceById(id);
   const { mutate, isPending } = useUpdateService();
@@ -100,16 +103,18 @@ export function EditServiceScreen(): React.JSX.Element {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  content: { padding: SPACING.lg, gap: SPACING.sm, paddingBottom: 100 },
-  centered: { flex: 1, backgroundColor: COLORS.background, alignItems: 'center', justifyContent: 'center' },
-  title: { fontSize: 22, fontWeight: '700', color: COLORS.textPrimary },
-  subtitle: { fontSize: 11, color: COLORS.accent, marginBottom: 8 },
-  row: { flexDirection: 'row', gap: SPACING.md },
-  btn: { backgroundColor: COLORS.accent, padding: SPACING.base, borderRadius: RADIUS.lg, alignItems: 'center', marginTop: SPACING.md },
-  btnDisabled: { opacity: 0.6 },
-  btnText: { color: '#000', fontWeight: '700' },
-  info: { backgroundColor: COLORS.card, padding: SPACING.md, borderRadius: RADIUS.md, borderWidth: 1, borderColor: COLORS.border, marginTop: SPACING.md },
-  infoText: { fontSize: 11, color: COLORS.textMuted },
-});
+function makeStyles(COLORS: ThemeColors) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: COLORS.background },
+    content: { padding: SPACING.lg, gap: SPACING.sm, paddingBottom: 100 },
+    centered: { flex: 1, backgroundColor: COLORS.background, alignItems: 'center', justifyContent: 'center' },
+    title: { fontSize: 22, fontWeight: '700', color: COLORS.textPrimary },
+    subtitle: { fontSize: 11, color: COLORS.accent, marginBottom: 8 },
+    row: { flexDirection: 'row', gap: SPACING.md },
+    btn: { backgroundColor: COLORS.accent, padding: SPACING.base, borderRadius: RADIUS.lg, alignItems: 'center', marginTop: SPACING.md },
+    btnDisabled: { opacity: 0.6 },
+    btnText: { color: '#000', fontWeight: '700' },
+    info: { backgroundColor: COLORS.card, padding: SPACING.md, borderRadius: RADIUS.md, borderWidth: 1, borderColor: COLORS.border, marginTop: SPACING.md },
+    infoText: { fontSize: 11, color: COLORS.textMuted },
+  });
+}

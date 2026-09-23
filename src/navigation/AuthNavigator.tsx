@@ -9,7 +9,13 @@ const Stack = createNativeStackNavigator<AuthStackParamList>();
 
 export function AuthNavigator(): React.JSX.Element {
   return (
-    <Stack.Navigator screenOptions={{ headerStyle: { backgroundColor: COLORS.surface }, headerTintColor: COLORS.textPrimary, contentStyle: { backgroundColor: COLORS.background } }}>
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: COLORS.surface },
+        headerTintColor: COLORS.textPrimary,
+        contentStyle: { backgroundColor: COLORS.background },
+      }}
+    >
       <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Register" component={RegisterScreen} options={{ title: 'Registro' }} />
     </Stack.Navigator>

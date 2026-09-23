@@ -2,11 +2,11 @@ import React from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useNavigation } from '@react-navigation/native';
 import { COLORS, SPACING, RADIUS } from '../theme';
 import { loginSchema, LoginFormData } from '../schemas/authSchema';
 import { FormField } from '../components/FormField';
 import { useAuthStore } from '../stores/authStore';
-import { useNavigation } from '@react-navigation/native';
 
 export function LoginScreen(): React.JSX.Element {
   const navigation = useNavigation();
@@ -36,13 +36,11 @@ export function LoginScreen(): React.JSX.Element {
       clearError();
       await login('emilys', 'emilyspass');
     } catch (e: any) {
-      // Fallback demo sin API si dummyjson falla
       Alert.alert('Modo Demo', 'API dummyjson no responde, entrando en modo demo local');
       const { secureStorage } = await import('../services/storage');
       await secureStorage.setItem('accessToken', 'demo-token');
       await secureStorage.setItem('refreshToken', 'demo-refresh');
       await secureStorage.setItem('user', JSON.stringify({ id: 1, username: 'emilys', email: 'emily.johnson@x.dummyjson.com', firstName: 'Emily', lastName: 'Johnson', image: 'https://dummyjson.com/icon/emilys/128' }));
-      // Fuerza auth
       const { useAuthStore } = await import('../stores/authStore');
       useAuthStore.setState({ user: { id: 1, username: 'emilys', email: 'emily.johnson@x.dummyjson.com', firstName: 'Emily', lastName: 'Johnson', image: 'https://dummyjson.com/icon/emilys/128' } as any, accessToken: 'demo-token', refreshToken: 'demo-refresh', isAuthenticated: true, isLoading: false });
     }
@@ -75,12 +73,12 @@ export function LoginScreen(): React.JSX.Element {
         </Pressable>
 
         <View style={styles.demoBox}>
-          <Text style={styles.demoTitle}>🔑 Credenciales que SÍ funcionan (2026):</Text>
-          <Text style={styles.demoText}>Usuario: emilys{'\n'}Contraseña: emilyspass{'\n\n'}Si falla, usa el botón Modo Demo arriba</Text>
+          <Text style={styles.demoTitle}>🔑 Credenciales demo:</Text>
+          <Text style={styles.demoText}>Usuario: emilys{'\n'}Contraseña: emilyspass</Text>
         </View>
 
         <Pressable onPress={() => (navigation as any).navigate('Register')}>
-          <Text style={styles.link}>¿No tienes cuenta? Regístrate</Text>
+          <Text style={styles.link}>¿No tienes cuenta? Regístrate aquí</Text>
         </Pressable>
       </View>
 

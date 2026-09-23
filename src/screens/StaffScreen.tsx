@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
 import { useStaff } from '../hooks/useServices';
 import { StaffCard } from '../components/StaffCard';
-import { COLORS, TYPOGRAPHY, SPACING } from '../theme';
+import { TYPOGRAPHY, SPACING, ThemeColors } from '../theme';
+import { useThemeColors } from '../hooks/useThemeColors';
 
 export function StaffScreen(): React.JSX.Element {
+  const COLORS = useThemeColors();
+  const styles = useMemo(() => makeStyles(COLORS), [COLORS]);
   const { data, isLoading } = useStaff();
 
   if (isLoading) {
@@ -29,10 +32,12 @@ export function StaffScreen(): React.JSX.Element {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  centered: { flex: 1, backgroundColor: COLORS.background, alignItems: 'center', justifyContent: 'center', gap: SPACING.md },
-  loading: { color: COLORS.textSecondary },
-  list: { padding: SPACING.base },
-  header: { ...TYPOGRAPHY.label, marginBottom: SPACING.md, textTransform: 'uppercase' },
-});
+function makeStyles(COLORS: ThemeColors) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: COLORS.background },
+    centered: { flex: 1, backgroundColor: COLORS.background, alignItems: 'center', justifyContent: 'center', gap: SPACING.md },
+    loading: { color: COLORS.textSecondary },
+    list: { padding: SPACING.base },
+    header: { fontSize: TYPOGRAPHY.label.fontSize, fontWeight: TYPOGRAPHY.label.fontWeight, color: COLORS.textSecondary, marginBottom: SPACING.md, textTransform: 'uppercase' },
+  });
+}

@@ -1,0 +1,59 @@
+import React from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Ionicons } from '@expo/vector-icons';
+import { ServicesListScreen } from '../screens/ServicesListScreen';
+import { ServiceDetailScreen } from '../screens/ServiceDetailScreen';
+import { ClientsScreen } from '../screens/ClientsScreen';
+import { StaffScreen } from '../screens/StaffScreen';
+import { AgendaScreen } from '../screens/AgendaScreen';
+import { FavoritesScreen } from '../screens/FavoritesScreen';
+import { COLORS } from '../theme';
+import { RootTabParamList, ServicesStackParamList } from './types';
+
+const Tab = createBottomTabNavigator<RootTabParamList>();
+const ServicesStack = createNativeStackNavigator<ServicesStackParamList>();
+
+// Semana 03 - React Navigation: Stack anidado en Tabs con params tipados
+function ServicesStackNavigator(): React.JSX.Element {
+  return (
+    <ServicesStack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: COLORS.surface },
+        headerTintColor: COLORS.textPrimary,
+        headerTitleStyle: { fontWeight: 'bold' },
+        contentStyle: { backgroundColor: COLORS.background },
+      }}
+    >
+      <ServicesStack.Screen name="ServicesList" component={ServicesListScreen} options={{ title: 'CleanPro • Servicios' }} />
+      <ServicesStack.Screen name="ServiceDetail" component={ServiceDetailScreen} options={({ route }) => ({ title: route.params.name })} />
+    </ServicesStack.Navigator>
+  );
+}
+
+export function RootNavigator(): React.JSX.Element {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName: keyof typeof Ionicons.glyphMap = 'home';
+          if (route.name === 'Servicios') iconName = focused ? 'sparkles' : 'sparkles-outline';
+          else if (route.name === 'Clientes') iconName = focused ? 'people' : 'people-outline';
+          else if (route.name === 'Personal') iconName = focused ? 'people-circle' : 'people-circle-outline';
+          else if (route.name === 'Agenda') iconName = focused ? 'calendar' : 'calendar-outline';
+          else if (route.name === 'Favoritos') iconName = focused ? 'heart' : 'heart-outline';
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: COLORS.accent,
+        tabBarInactiveTintColor: COLORS.textMuted,
+        tabBarStyle: { backgroundColor: COLORS.surface, borderTopColor: COLORS.border },
+      })}
+    >
+      <Tab.Screen name="Servicios" component={ServicesStackNavigator} />
+      <Tab.Screen name="Clientes" component={ClientsScreen} />
+      <Tab.Screen name="Personal" component={StaffScreen} />
+      <Tab.Screen name="Agenda" component={AgendaScreen} />
+      <Tab.Screen name="Favoritos" component={FavoritesScreen} />
+    </Tab.Navigator>
+  );
+}

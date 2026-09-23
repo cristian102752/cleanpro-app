@@ -1,16 +1,20 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCreateService } from '../hooks/useServices';
-import { COLORS, SPACING, RADIUS } from '../theme';
+import { useThemeColors } from '../hooks/useThemeColors';
+import { SPACING, RADIUS, ThemeColors } from '../theme';
 import { useNavigation } from '@react-navigation/native';
 import { serviceSchema, ServiceFormData } from '../schemas/serviceSchema';
 import { FormField, CategoryField } from '../components/FormField';
 
 export function CreateServiceScreen(): React.JSX.Element {
   const navigation = useNavigation();
+  const COLORS = useThemeColors();
   const { mutate, isPending } = useCreateService();
+
+  const styles = useMemo(() => makeStyles(COLORS), [COLORS]);
 
   const {
     control,
@@ -105,7 +109,7 @@ export function CreateServiceScreen(): React.JSX.Element {
       <FormField
         name="includes"
         control={control}
-        label="Incluye (separado por comas)"
+        label="Incluye (separado con comas)"
         placeholder="Baños, Cocina, Sala"
         error={errors.includes as any}
         hint="Ej: Baños, Cocina, Habitaciones"
@@ -132,15 +136,17 @@ export function CreateServiceScreen(): React.JSX.Element {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  content: { padding: SPACING.lg, gap: SPACING.sm, paddingBottom: 100 },
-  title: { fontSize: 22, fontWeight: '700', color: COLORS.textPrimary },
-  subtitle: { fontSize: 12, color: COLORS.accent, marginTop: -4, marginBottom: 8 },
-  row: { flexDirection: 'row', gap: SPACING.md },
-  btn: { backgroundColor: COLORS.accent, padding: SPACING.base, borderRadius: RADIUS.lg, alignItems: 'center', marginTop: SPACING.md },
-  btnDisabled: { opacity: 0.6 },
-  btnText: { color: '#000', fontWeight: '700', fontSize: 15 },
-  info: { backgroundColor: COLORS.card, padding: SPACING.md, borderRadius: RADIUS.md, borderWidth: 1, borderColor: COLORS.border, marginTop: SPACING.md },
-  infoText: { fontSize: 11, color: COLORS.textMuted, lineHeight: 16 },
-});
+function makeStyles(COLORS: ThemeColors) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: COLORS.background },
+    content: { padding: SPACING.lg, gap: SPACING.sm, paddingBottom: 100 },
+    title: { fontSize: 22, fontWeight: '700', color: COLORS.textPrimary },
+    subtitle: { fontSize: 12, color: COLORS.accent, marginTop: -4, marginBottom: 8 },
+    row: { flexDirection: 'row', gap: SPACING.md },
+    btn: { backgroundColor: COLORS.accent, padding: SPACING.base, borderRadius: RADIUS.lg, alignItems: 'center', marginTop: SPACING.md },
+    btnDisabled: { opacity: 0.6 },
+    btnText: { color: '#000', fontWeight: '700', fontSize: 15 },
+    info: { backgroundColor: COLORS.card, padding: SPACING.md, borderRadius: RADIUS.md, borderWidth: 1, borderColor: COLORS.border, marginTop: SPACING.md },
+    infoText: { fontSize: 11, color: COLORS.textMuted, lineHeight: 16 },
+  });
+}

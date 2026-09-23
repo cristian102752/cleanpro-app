@@ -25,30 +25,31 @@ export function usePreferences() {
   const [preferences, setPreferences] = useState<UserPreferences>(DEFAULT_PREFS);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Cargar preferencias al iniciar
-  useEffect(() => {
-    async function load() {
-      try {
-        // Intenta MMKV sincrónico primero
-        const mmkvPrefs = mmkvStorage.getItem<UserPreferences>(STORAGE_KEYS.PREFERENCES);
-        if (mmkvPrefs) {
-          setPreferences(mmkvPrefs);
-          setIsLoading(false);
-          return;
-        }
-        // Fallback AsyncStorage
-        const stored = await asyncStorage.getItem<UserPreferences>(STORAGE_KEYS.PREFERENCES);
-        if (stored) {
-          setPreferences({ ...DEFAULT_PREFS, ...stored });
-        }
-      } catch (e) {
-        console.error('Error loading preferences', e);
-      } finally {
+  // Cargar preferencias (al iniciar y con reload() al enfocar pantalla)
+  const load = useCallback(async () => {
+    try {
+      // Intenta MMKV sincrónico primero
+      const mmkvPrefs = mmkvStorage.getItem<UserPreferences>(STORAGE_KEYS.PREFERENCES);
+      if (mmkvPrefs) {
+        setPreferences({ ...DEFAULT_PREFS, ...mmkvPrefs });
         setIsLoading(false);
+        return;
       }
+      // Fallback AsyncStorage
+      const stored = await asyncStorage.getItem<UserPreferences>(STORAGE_KEYS.PREFERENCES);
+      if (stored) {
+        setPreferences({ ...DEFAULT_PREFS, ...stored });
+      }
+    } catch (e) {
+      console.error('Error loading preferences', e);
+    } finally {
+      setIsLoading(false);
     }
-    load();
   }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const setPreference = useCallback(async <K extends keyof UserPreferences>(key: K, value: UserPreferences[K]) => {
     setPreferences((prev) => {
@@ -81,5 +82,6 @@ export function usePreferences() {
     setPreference,
     updatePreferences,
     resetPreferences,
+    reload: load, // FIX: para recargar al enfocar la pantalla (useFocusEffect)
   };
 }

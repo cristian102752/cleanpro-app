@@ -78,6 +78,13 @@ export function ServiceDetailScreen(): React.JSX.Element {
             </Text>
           </Pressable>
 
+          <Pressable
+            style={[styles.bookBtn, { backgroundColor: COLORS.surface, borderWidth: 1, borderColor: COLORS.border }]}
+            onPress={() => (navigation as any).navigate('EditService', { id: service.id, name: service.name })}
+          >
+            <Text style={[styles.bookText, { color: COLORS.textPrimary }]}>✏️ Editar Servicio (Semana 06)</Text>
+          </Pressable>
+
           <Pressable style={styles.bookBtn} onPress={() => alert(`¡Servicio ${service.name} agendado! Próximamente formulario real.`)}>
             <Text style={styles.bookText}>📅 Agendar Servicio</Text>
           </Pressable>

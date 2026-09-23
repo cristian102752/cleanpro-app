@@ -1,121 +1,131 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Pressable, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, Pressable, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useCreateService } from '../hooks/useServices';
-import { COLORS, SPACING, RADIUS, TYPOGRAPHY } from '../theme';
+import { COLORS, SPACING, RADIUS } from '../theme';
 import { useNavigation } from '@react-navigation/native';
+import { serviceSchema, ServiceFormData } from '../schemas/serviceSchema';
+import { FormField, CategoryField } from '../components/FormField';
 
 export function CreateServiceScreen(): React.JSX.Element {
   const navigation = useNavigation();
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [price, setPrice] = useState('');
-  const [category, setCategory] = useState('residencial');
-  const [duration, setDuration] = useState('');
-
   const { mutate, isPending } = useCreateService();
 
-  const handleCreate = () => {
-    if (!name || !description || !price) {
-      Alert.alert('Faltan datos', 'Completa nombre, descripción y precio');
-      return;
-    }
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting, isDirty },
+  } = useForm<ServiceFormData>({
+    resolver: zodResolver(serviceSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+      price: 0 as any,
+      durationMinutes: 120 as any,
+      category: 'residencial',
+      includes: '',
+    },
+  });
 
+  const onSubmit = (data: ServiceFormData) => {
     mutate(
       {
-        name,
-        description,
-        price: parseInt(price) || 0,
-        category: category as any,
-        durationMinutes: parseInt(duration) || 120,
+        name: data.name,
+        description: data.description,
+        price: Number(data.price),
+        durationMinutes: Number(data.durationMinutes),
+        category: data.category as any,
       },
       {
         onSuccess: (newService) => {
-          Alert.alert('¡Creado!', `Servicio ${newService.name} creado correctamente (simulado)`);
+          Alert.alert('¡Creado!', `Servicio ${newService.name} creado correctamente`);
           navigation.goBack();
         },
-        onError: (e) => {
-          Alert.alert('Error', e.message);
-        },
+        onError: (e) => Alert.alert('Error', e.message),
       }
     );
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
       <Text style={styles.title}>Nuevo Servicio de Limpieza</Text>
-      <Text style={styles.subtitle}>Semana 05 - useMutation + invalidateQueries</Text>
+      <Text style={styles.subtitle}>Semana 06 - RHF + Zod + FormField reutilizable</Text>
 
-      <View style={styles.field}>
-        <Text style={styles.label}>Nombre del servicio *</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Ej: Limpieza de Oficinas Premium"
-          placeholderTextColor={COLORS.textMuted}
-          value={name}
-          onChangeText={setName}
-        />
-      </View>
+      <FormField
+        name="name"
+        control={control}
+        label="Nombre del servicio *"
+        placeholder="Ej: Limpieza de Oficinas Premium"
+        error={errors.name}
+        hint="Mín 3, máx 80 caracteres"
+      />
 
-      <View style={styles.field}>
-        <Text style={styles.label}>Descripción *</Text>
-        <TextInput
-          style={[styles.input, styles.textArea]}
-          placeholder="Describe qué incluye el servicio..."
-          placeholderTextColor={COLORS.textMuted}
-          value={description}
-          onChangeText={setDescription}
-          multiline
-          numberOfLines={4}
-        />
-      </View>
+      <FormField
+        name="description"
+        control={control}
+        label="Descripción *"
+        placeholder="Describe qué incluye el servicio..."
+        multiline
+        numberOfLines={4}
+        error={errors.description}
+      />
 
       <View style={styles.row}>
-        <View style={[styles.field, { flex: 1 }]}>
-          <Text style={styles.label}>Precio COP *</Text>
-          <TextInput
-            style={styles.input}
+        <View style={{ flex: 1 }}>
+          <FormField
+            name="price"
+            control={control}
+            label="Precio COP *"
             placeholder="120000"
-            placeholderTextColor={COLORS.textMuted}
-            value={price}
-            onChangeText={setPrice}
             keyboardType="numeric"
+            error={errors.price}
           />
         </View>
-        <View style={[styles.field, { flex: 1 }]}>
-          <Text style={styles.label}>Duración min</Text>
-          <TextInput
-            style={styles.input}
+        <View style={{ flex: 1 }}>
+          <FormField
+            name="durationMinutes"
+            control={control}
+            label="Duración min *"
             placeholder="180"
-            placeholderTextColor={COLORS.textMuted}
-            value={duration}
-            onChangeText={setDuration}
             keyboardType="numeric"
+            error={errors.durationMinutes}
           />
         </View>
       </View>
 
-      <View style={styles.field}>
-        <Text style={styles.label}>Categoría</Text>
-        <View style={styles.catRow}>
-          {['residencial', 'oficina', 'vidrios', 'postObra', 'industrial', 'desinfeccion'].map((c) => (
-            <Pressable
-              key={c}
-              style={[styles.catChip, category === c && styles.catActive]}
-              onPress={() => setCategory(c)}
-            >
-              <Text style={[styles.catText, category === c && styles.catTextActive]}>{c}</Text>
-            </Pressable>
-          ))}
-        </View>
-      </View>
+      <CategoryField
+        name="category"
+        control={control}
+        label="Categoría *"
+        options={['residencial', 'oficina', 'vidrios', 'postObra', 'industrial', 'desinfeccion']}
+        error={errors.category}
+      />
 
-      <Pressable style={[styles.btn, isPending && styles.btnDisabled]} onPress={handleCreate} disabled={isPending}>
-        {isPending ? <ActivityIndicator color="#000" /> : <Text style={styles.btnText}>Crear Servicio (POST)</Text>}
+      <FormField
+        name="includes"
+        control={control}
+        label="Incluye (separado por comas)"
+        placeholder="Baños, Cocina, Sala"
+        error={errors.includes as any}
+        hint="Ej: Baños, Cocina, Habitaciones"
+      />
+
+      <Pressable
+        style={[styles.btn, (isPending || isSubmitting) && styles.btnDisabled]}
+        onPress={handleSubmit(onSubmit)}
+        disabled={isPending || isSubmitting}
+      >
+        {isPending || isSubmitting ? (
+          <ActivityIndicator color="#000" />
+        ) : (
+          <Text style={styles.btnText}>Crear Servicio (POST) - {isDirty ? 'Modificado' : 'Sin cambios'}</Text>
+        )}
       </Pressable>
 
       <View style={styles.info}>
         <Text style={styles.infoText}>
-          💡 Este formulario usa useMutation de TanStack Query. Al crear, hace invalidateQueries(['services']) y la lista se refresca automáticamente.
+          💡 Semana 06: useForm + Controller + zodResolver. Errores inline, isSubmitting, isDirty, reset automático. FormField reutilizable en Create y Edit.
         </Text>
       </View>
     </ScrollView>
@@ -124,30 +134,13 @@ export function CreateServiceScreen(): React.JSX.Element {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  content: { padding: SPACING.lg, gap: SPACING.md, paddingBottom: 100 },
+  content: { padding: SPACING.lg, gap: SPACING.sm, paddingBottom: 100 },
   title: { fontSize: 22, fontWeight: '700', color: COLORS.textPrimary },
-  subtitle: { fontSize: 12, color: COLORS.accent, marginTop: -8 },
-  field: { gap: 6 },
-  label: { fontSize: 13, fontWeight: '600', color: COLORS.textSecondary },
-  input: {
-    backgroundColor: COLORS.surface,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: RADIUS.md,
-    padding: SPACING.md,
-    color: COLORS.textPrimary,
-    fontSize: 15,
-  },
-  textArea: { height: 100, textAlignVertical: 'top' },
+  subtitle: { fontSize: 12, color: COLORS.accent, marginTop: -4, marginBottom: 8 },
   row: { flexDirection: 'row', gap: SPACING.md },
-  catRow: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm },
-  catChip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: RADIUS.full, backgroundColor: COLORS.surface, borderWidth: 1, borderColor: COLORS.border },
-  catActive: { backgroundColor: COLORS.accentDim, borderColor: COLORS.accent },
-  catText: { fontSize: 12, color: COLORS.textSecondary, textTransform: 'capitalize' },
-  catTextActive: { color: COLORS.accent, fontWeight: '700' },
   btn: { backgroundColor: COLORS.accent, padding: SPACING.base, borderRadius: RADIUS.lg, alignItems: 'center', marginTop: SPACING.md },
   btnDisabled: { opacity: 0.6 },
-  btnText: { color: '#000', fontWeight: '700', fontSize: 16 },
+  btnText: { color: '#000', fontWeight: '700', fontSize: 15 },
   info: { backgroundColor: COLORS.card, padding: SPACING.md, borderRadius: RADIUS.md, borderWidth: 1, borderColor: COLORS.border, marginTop: SPACING.md },
-  infoText: { fontSize: 12, color: COLORS.textMuted, lineHeight: 16 },
+  infoText: { fontSize: 11, color: COLORS.textMuted, lineHeight: 16 },
 });

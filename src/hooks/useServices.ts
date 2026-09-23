@@ -33,6 +33,24 @@ export function useCreateService() {
   });
 }
 
+// Semana 06 - Nuevo: Update
+export function useUpdateService() {
+  const queryClient = useQueryClient();
+  return useMutation<Service, Error, { id: string; data: Partial<CreateServicePayload> }>({
+    mutationFn: async ({ id, data }) => {
+      // Simula update
+      await new Promise((r) => setTimeout(r, 800));
+      const existing = await mockApi.getServiceById(id);
+      if (!existing) throw new Error('Servicio no encontrado');
+      return { ...existing, ...data, id } as Service;
+    },
+    onSuccess: (updated) => {
+      queryClient.invalidateQueries({ queryKey: SERVICES_KEY });
+      queryClient.setQueryData([...SERVICES_KEY, updated.id], updated);
+    },
+  });
+}
+
 // CLIENTS
 export function useClients() {
   return useQuery<Client[]>({

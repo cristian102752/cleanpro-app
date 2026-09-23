@@ -1,12 +1,30 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import { View, Text, FlatList, TextInput, StyleSheet, ActivityIndicator, Pressable, RefreshControl } from 'react-native';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  TextInput,
+  StyleSheet,
+  ActivityIndicator,
+  Pressable,
+  RefreshControl,
+  LayoutAnimation,
+  Platform,
+  UIManager,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ServicesStackParamList } from '../navigation/types';
 import { useServices } from '../hooks/useServices';
-import { ServiceCard } from '../components/ServiceCard';
+import { AnimatedServiceCard } from '../components/AnimatedServiceCard';
+import { LoadingShimmer } from '../components/LoadingShimmer';
 import { Service } from '../types';
 import { COLORS, TYPOGRAPHY, SPACING, RADIUS } from '../theme';
+
+// Habilita LayoutAnimation en Android
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 type NavProp = NativeStackNavigationProp<ServicesStackParamList, 'ServicesList'>;
 
@@ -19,10 +37,16 @@ export function ServicesListScreen(): React.JSX.Element {
 
   const categories: string[] = ['residencial', 'oficina', 'vidrios', 'postObra', 'industrial', 'desinfeccion'];
 
+  // Semana 09 - LayoutAnimation al filtrar
+  useEffect(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+  }, [search, selectedCategory]);
+
   const filtered = useMemo(() => {
     if (!services) return [];
     return services.filter((s) => {
-      const matchesSearch = search === '' || 
+      const matchesSearch =
+        search === '' ||
         s.name.toLowerCase().includes(search.toLowerCase()) ||
         s.description.toLowerCase().includes(search.toLowerCase());
       const matchesCat = !selectedCategory || s.category === selectedCategory;
@@ -30,19 +54,29 @@ export function ServicesListScreen(): React.JSX.Element {
     });
   }, [services, search, selectedCategory]);
 
-  const handlePress = useCallback((service: Service) => {
-    navigation.navigate('ServiceDetail', { id: service.id, name: service.name });
-  }, [navigation]);
+  const handlePress = useCallback(
+    (service: Service) => {
+      navigation.navigate('ServiceDetail', { id: service.id, name: service.name });
+    },
+    [navigation]
+  );
 
-  const renderItem = useCallback(({ item }: { item: Service }) => (
-    <ServiceCard service={item} onPress={handlePress} />
-  ), [handlePress]);
+  // Semana 09 - Render con AnimatedServiceCard + index para stagger
+  const renderItem = useCallback(
+    ({ item, index }: { item: Service; index: number }) => (
+      <AnimatedServiceCard service={item} index={index} onPress={handlePress} />
+    ),
+    [handlePress]
+  );
 
+  // Semana 09 - Loading con Shimmer en vez de spinner
   if (isLoading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color={COLORS.accent} />
-        <Text style={styles.loadingText}>Cargando servicios de limpieza...</Text>
+      <View style={styles.container}>
+        <View style={styles.searchContainer}>
+          <View style={[styles.searchInput, { backgroundColor: COLORS.card }]} />
+        </View>
+        <LoadingShimmer />
       </View>
     );
   }
@@ -61,7 +95,7 @@ export function ServicesListScreen(): React.JSX.Element {
 
   return (
     <View style={styles.container}>
-      {/* Search */}
+      {/* Search - Semana 02 */}
       <View style={styles.searchContainer}>
         <TextInput
           placeholder="Buscar servicio... ej: residencial, vidrios"
@@ -73,7 +107,7 @@ export function ServicesListScreen(): React.JSX.Element {
         />
       </View>
 
-      {/* Categories */}
+      {/* Categories - Semana 02 */}
       <View style={styles.categoriesContainer}>
         <FlatList
           horizontal
@@ -83,34 +117,25 @@ export function ServicesListScreen(): React.JSX.Element {
           contentContainerStyle={styles.categoriesList}
           renderItem={({ item }) => (
             <Pressable
-              style={[
-                styles.catChip,
-                selectedCategory === item && styles.catChipActive,
-              ]}
+              style={[styles.catChip, selectedCategory === item && styles.catChipActive]}
               onPress={() => setSelectedCategory(selectedCategory === item ? null : item)}
             >
-              <Text style={[
-                styles.catText,
-                selectedCategory === item && styles.catTextActive,
-              ]}>
-                {item}
-              </Text>
+              <Text style={[styles.catText, selectedCategory === item && styles.catTextActive]}>{item}</Text>
             </Pressable>
           )}
         />
       </View>
 
+      {/* Lista con animaciones Semana 09 */}
       <FlatList
         data={filtered}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         contentContainerStyle={styles.list}
-        refreshControl={
-          <RefreshControl refreshing={isFetching && !isLoading} onRefresh={refetch} tintColor={COLORS.accent} />
-        }
+        refreshControl={<RefreshControl refreshing={isFetching && !isLoading} onRefresh={refetch} tintColor={COLORS.accent} />}
         ListHeaderComponent={
           <View style={styles.header}>
-            <Text style={styles.count}>{filtered.length} servicios • CleanPro</Text>
+            <Text style={styles.count}>{filtered.length} servicios • CleanPro • Semana 09 Animado</Text>
             <Pressable style={styles.createBtn} onPress={() => navigation.navigate('CreateService')}>
               <Text style={styles.createBtnText}>+ Nuevo</Text>
             </Pressable>
@@ -129,11 +154,24 @@ export function ServicesListScreen(): React.JSX.Element {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  centered: { flex: 1, backgroundColor: COLORS.background, alignItems: 'center', justifyContent: 'center', gap: SPACING.md, padding: SPACING.lg },
+  centered: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.md,
+    padding: SPACING.lg,
+  },
   loadingText: { ...TYPOGRAPHY.caption },
   errorText: { ...TYPOGRAPHY.h3, color: COLORS.error },
   errorDetail: { ...TYPOGRAPHY.caption, textAlign: 'center' },
-  retryBtn: { backgroundColor: COLORS.accent, paddingHorizontal: SPACING.lg, paddingVertical: SPACING.sm, borderRadius: RADIUS.md, marginTop: SPACING.sm },
+  retryBtn: {
+    backgroundColor: COLORS.accent,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.sm,
+    borderRadius: RADIUS.md,
+    marginTop: SPACING.sm,
+  },
   retryText: { color: COLORS.background, fontWeight: '600' },
   searchContainer: { padding: SPACING.base, paddingBottom: SPACING.sm },
   searchInput: {
@@ -161,8 +199,14 @@ const styles = StyleSheet.create({
   catText: { fontSize: TYPOGRAPHY.size.sm, color: COLORS.textSecondary, textTransform: 'capitalize' },
   catTextActive: { color: COLORS.accent, fontWeight: '600' },
   list: { padding: SPACING.base, paddingTop: 0 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACING.md, marginTop: SPACING.sm },
-  count: { ...TYPOGRAPHY.label, textTransform: 'uppercase', letterSpacing: 0.5 },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.md,
+    marginTop: SPACING.sm,
+  },
+  count: { ...TYPOGRAPHY.label, textTransform: 'uppercase', letterSpacing: 0.5, flex: 1 },
   createBtn: { backgroundColor: COLORS.accent, paddingHorizontal: SPACING.md, paddingVertical: 6, borderRadius: RADIUS.full },
   createBtnText: { color: COLORS.background, fontWeight: '700', fontSize: TYPOGRAPHY.size.sm },
   empty: { alignItems: 'center', paddingTop: 60, gap: SPACING.sm },

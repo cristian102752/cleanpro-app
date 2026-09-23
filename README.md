@@ -1,175 +1,171 @@
-#  CleanPro - Empresa de Limpieza
+# CleanPro - Empresa de Limpieza
 
-**Autor:** Cristian Alvarado Guerrero  
-**Ficha:** 3311987  
-**Bootcamp:** bc-flutter (React Native) - bc-reactnative semanas 1-5  
-**Correo:** alvaradocristian1027@gmail.com  
-**Dominio:** Empresa de limpieza  
+**Autor:** Cristian Alvarado Guerrero
+
+**Ficha:** 3311987
+
+**Bootcamp:** bc-reactnative — semanas 1 a 9
+
+**Correo:** alvaradocristian1027@gmail.com
+
+**Dominio:** Empresa de limpieza
+
 **Entidades:** clients, services, staff, schedules
 
-> App móvil para gestión de empresa de limpieza, construida desde cero con React Native + Expo, cumpliendo rúbricas semanas 1 a 5 del bootcamp `ergrato-dev/bc-reactnative`.
+> App móvil para gestión de empresa de limpieza, construida desde cero con **React Native + Expo + TypeScript**, cumpliendo las rúbricas de las semanas 1 a 9 del bootcamp `ergrato-dev/bc-reactnative`.
 
 ---
 
-##  Objetivo del dominio
+## 🌳 Estructura del repositorio (evaluación por semana)
+
+El repositorio sigue el flujo de `eval-semanal`: **una rama por semana**, cada una con **un solo commit** que contiene únicamente el código que existía hasta esa semana (modo estricto), más su `README.md` explicativo.
+
+| Rama | Semana | Contenido de la entrega |
+|------|--------|--------------------------|
+| `week-01` | 01 | Core Components y Flexbox: `ServiceCard`, tema global, tipos y mockData |
+| `week-02` | 02 | FlatList, búsqueda en tiempo real, chips de categoría y empty state |
+| `week-03` | 03 | React Navigation: Stack anidado en Tabs, parámetros tipados, detalle |
+| `week-04` | 04 | Zustand con persist (AsyncStorage): favoritos, badge dinámico |
+| `week-05` | 05 | TanStack Query + Axios: loading, error, pull-to-refresh, caché |
+| `week-06` | 06 | React Hook Form + Zod: crear/editar servicios, FormField reutilizable |
+| `week-07` | 07 | Persistencia local: preferencias, tema dark/light, vista grid, SafeArea, Ajustes |
+| `week-08` | 08 | Auth JWT + SecureStore + Zustand: login, registro, refresh automático |
+| `week-09` | 09 | Animaciones: fade escalonado, scale al presionar, shimmer, LayoutAnimation |
+| `main` | — | Aplicación completa y funcional (las 9 semanas integradas) |
+
+Para revisar una semana: selector de ramas → `week-XX` → 1 commit + README de esa semana.
+
+---
+
+## 🎯 Objetivo del dominio
 
 CleanPro es una empresa bogotana de limpieza que ofrece servicios residenciales, corporativos, industriales y de desinfección. La app permite:
 
-- **Services:** Ver catálogo de 12 servicios con precios en COP, filtrar por categoría, buscar en tiempo real
+- **Services:** Catálogo de 12 servicios con precios en COP, filtro por categoría, búsqueda en tiempo real, creación y edición con validación
 - **Clients:** Listar 8 clientes (residencial y empresarial) con historial
 - **Staff:** Ver 6 colaboradores (operarios, supervisores, especialistas) con disponibilidad
 - **Schedules:** Gestionar 10 agendamientos con estados (pendiente, en_curso, completado)
-- **Favoritos:** Guardar servicios favoritos con persistencia (Zustand + AsyncStorage)
+- **Favorites:** Guardar servicios favoritos con persistencia (Zustand + AsyncStorage)
+- **Auth:** Login y registro con JWT (accessToken + refreshToken) guardados en SecureStore
+- **Preferences:** Tema dark/light, vista lista/grid y ordenamiento persistidos
 
 ---
 
-##  Stack Tecnológico (Semanas 1-5)
+## 🚀 Cómo ejecutar el proyecto
 
-| Tecnología | Versión | Uso | Semana |
-|------------|---------|-----|--------|
-| React Native | 0.86 | Framework | 1 |
-| Expo SDK | 57 | Plataforma | 1 |
-| TypeScript | 6.0 | Lenguaje | 1 |
-| React Navigation | 7.3 | Navegación Stack + Tabs | 3 |
-| Zustand | 5.0 | Estado global favoritos | 4 |
-| AsyncStorage | 2.2 | Persistencia | 4 |
-| TanStack Query | 5.101 | Server state, cache | 5 |
-| Axios | 1.18 | HTTP client | 5 |
+### Requisitos
+- Node.js 18+
+- Expo Go instalado en el celular (Android/iOS)
+- Celular y computador en la misma red WiFi
 
----
-
-##  Cumplimiento por semana
-
-### Semana 1 - Core Components y Flexbox
-- [x] View, Text, Image, ScrollView, Pressable
-- [x] StyleSheet.create (sin inline)
-- [x] Flexbox: flexDirection, justifyContent, alignItems, flex, gap
-- [x] Header + 3+ tarjetas con imagen, nombre, subtítulo
-- [x] TypeScript interfaces
-- **Archivo clave:** `src/components/ServiceCard.tsx`
-
-### Semana 2 - Listas, Inputs y Estilos
-- [x] FlatList con 12 items (no ScrollView)
-- [x] keyExtractor con id (no index)
-- [x] TextInput búsqueda tiempo real
-- [x] useMemo para filtrado, useCallback para renderItem
-- [x] Theme constants COLORS, TYPOGRAPHY, SPACING
-- [x] ListEmptyComponent, ItemSeparator
-- **Archivo clave:** `src/screens/ServicesListScreen.tsx`
-
-### Semana 3 - React Navigation 7
-- [x] NavigationContainer
-- [x] Stack Navigator (ServicesList → ServiceDetail)
-- [x] Tab Navigator (5 tabs: Servicios, Clientes, Personal, Agenda, Favoritos)
-- [x] Navegación anidada Tab → Stack
-- [x] Pasar params con navigate, leer con useRoute
-- [x] Tipado RootTabParamList, ServicesStackParamList
-- [x] Iconos Ionicons
-- **Archivo clave:** `src/navigation/RootNavigator.tsx`
-
-### Semana 4 - Zustand
-- [x] create store con estado y acciones
-- [x] Selectores para optimizar re-renders
-- [x] Persist middleware con AsyncStorage
-- [x] Distinguir Zustand (favoritos) vs useState (búsqueda)
-- [x] Badge dinámico en tab Favoritos
-- [x] Toggle favorito desde lista y detalle
-- **Archivo clave:** `src/stores/favoritesStore.ts`
-
-### Semana 5 - Networking TanStack Query
-- [x] Axios instance con baseURL, interceptors
-- [x] mockApi con delay simulando red (para no depender de backend)
-- [x] useQuery para GET (services, clients, staff, schedules)
-- [x] useMutation para POST (create service) + invalidateQueries
-- [x] Estados: isLoading → ActivityIndicator, isError → retry button, empty, pull-to-refresh
-- [x] QueryClientProvider en App.tsx
-- [x] Sin server state en Zustand
-- **Archivos clave:** `src/services/api.ts`, `src/hooks/useServices.ts`
-
----
-
-##  Cómo correr
+### Pasos
 
 ```bash
-# 1. Instalar dependencias
-pnpm install
+# 1. Clonar y entrar
+git clone https://github.com/cristian102752/cleanpro-app.git
+cd cleanpro-app
 
-# 2. Iniciar Expo
-pnpm start
+# 2. Instalar dependencias
+npm install --force
 
-# 3. Escanear QR con Expo Go (iOS/Android) o presionar:
-# a → Android emulator
-# i → iOS simulator
-# w → web
+# 3. Arrancar Metro
+npx expo start --clear --host lan
+
+# 4. Escanear el QR con Expo Go (Android) o Cámara (iOS)
 ```
 
-### Variables de entorno (opcional)
-Crea `.env.local`:
-```
-EXPO_PUBLIC_API_URL=https://tu-mockapi.io/api
-```
-Si no existe, usa mock local con delay + jsonplaceholder para demo real.
+### Credenciales demo (Semana 08)
+
+| Usuario | Contraseña |
+|---------|------------|
+| `emilys` | `emilyspass` |
+
+Si la API externa no responde, la app ofrece el botón **🚀 Entrar en Modo Demo** que genera una sesión local.
 
 ---
 
-##  Estructura
+## 📱 Stack tecnológico
+
+| Capa | Tecnología |
+|------|------------|
+| Framework | React Native + Expo SDK 57 |
+| Lenguaje | TypeScript |
+| Navegación | @react-navigation (native-stack + bottom-tabs) |
+| Estado global | Zustand (con middleware persist) |
+| Datos remotos | TanStack Query (React Query) + Axios |
+| Formularios | React Hook Form + Zod (zodResolver) |
+| Persistencia | AsyncStorage, expo-secure-store (tokens JWT) |
+| Animaciones | Animated API + LayoutAnimation |
+| Tema | Sistema propio COLORS/TYPOGRAPHY/SPACING/RADIUS con dark/light |
+
+---
+
+## 🗂️ Estructura del código (main)
 
 ```
 src/
-├── theme/               # Semana 2 - COLORS, TYPOGRAPHY
-├── types/               # Semana 1 - Service, Client, Staff, Schedule
-├── data/mockData.ts     # 12 servicios, 8 clientes, 6 staff, 10 agendas
-├── services/api.ts      # Semana 5 - axios + mockApi
-├── hooks/useServices.ts # Semana 5 - useQuery, useMutation
-├── stores/favoritesStore.ts # Semana 4 - Zustand persist
-├── components/
-│   ├── ServiceCard.tsx  # Semana 1 - Flexbox card
-│   ├── ClientCard.tsx
-│   ├── StaffCard.tsx
-│   └── ScheduleCard.tsx
-├── navigation/
-│   ├── RootNavigator.tsx # Semana 3 - Tabs + Stacks
-│   └── types.ts
-└── screens/
-    ├── ServicesListScreen.tsx  # S2 + S5 - FlatList + search + useQuery
-    ├── ServiceDetailScreen.tsx # S3 + S4 - params + favoritos
-    ├── CreateServiceScreen.tsx # S5 - useMutation
-    ├── ClientsScreen.tsx
-    ├── StaffScreen.tsx
-    ├── AgendaScreen.tsx
-    └── FavoritesScreen.tsx     # S4 - Zustand
+├── components/     # ServiceCard, AnimatedServiceCard, FormField, cards, shimmer
+├── data/           # mockData: 12 servicios, 8 clientes, 6 staff, 10 agendas
+├── hooks/          # useServices, usePreferences, useThemeColors, useAnimations, useOfflineCache
+├── navigation/     # RootNavigator (6 tabs), AuthNavigator, types tipados
+├── schemas/        # serviceSchema y authSchema (Zod)
+├── screens/        # ServicesList, Detail, Create, Edit, Clients, Staff, Agenda, Favorites, Settings, Login, Register
+├── services/       # api (Axios + mockApi), authApi, storage (AsyncStorage/SecureStore)
+├── stores/         # favoritesStore, authStore (Zustand)
+├── theme/          # paletas dark y light
+└── types/          # Service, Client, Staff, Schedule
 ```
 
 ---
 
-##  Decisiones de diseño (Dominio Limpieza)
+## ✅ Funcionalidades por semana (resumen)
 
-- **Paleta:** Cyan #22d3ee (limpieza, frescura) + Emerald #34d399 (desinfección, éxito) + dark background #0d1117 (profesional)
-- **Categorías con colores:** residencial cyan, oficina morado, vidrios azul, postObra amarillo, industrial rosa, desinfeccion verde
-- **Precios COP:** Formato colombiano $120.000, no dólares
-- **Datos bogotanos:** Direcciones Calle 85, Carrera 7, clientes con nombres colombianos
-- **Entidades completas:** No solo services, también clients, staff, schedules en tabs separados para demostrar dominio completo
+### Semana 01 — Core Components y Flexbox
+Tarjeta `ServiceCard` con imagen, badge de categoría, precio formateado en COP y chips de "incluye", maquetada con Flexbox sobre el tema global.
+
+### Semana 02 — Listas y búsqueda
+`FlatList` con búsqueda que filtra al escribir, chips de categoría con toggle, empty state y contador de resultados.
+
+### Semana 03 — Navegación
+TabNavigator con 5 pestañas y Stack anidado para Servicios → Detalle. Parámetros tipados (`ServicesStackParamList`), título dinámico desde `route.params` e iconos Ionicons con estado focused.
+
+### Semana 04 — Estado global
+`favoritesStore` con Zustand + persist en AsyncStorage. Toggle desde el detalle, badge dinámico en el tab y pantalla de favoritos con limpieza.
+
+### Semana 05 — Datos remotos
+`apiClient` Axios con interceptores y `mockApi` con delays. Hooks `useServices`, `useClients`, `useStaff`, `useSchedules` con estados de loading/error y pull-to-refresh.
+
+### Semana 06 — Formularios
+`useForm` + `Controller` + `zodResolver` con errores inline, `isDirty`/`isSubmitting`. `FormField` y `CategoryField` reutilizables. Edición con `defaultValues` + `reset()` desde la API.
+
+### Semana 07 — Persistencia y preferencias
+Preferencias persistidas (tema, vista lista/grid, orden), `useSafeAreaInsets` para el buscador, caché offline con fallback, pantalla de Ajustes y tema dark/light aplicado a toda la app.
+
+### Semana 08 — Autenticación
+Login y registro con RHF+Zod, tokens JWT en SecureStore, `authStore` con `checkAuth`/`refreshTokens`, interceptor que agrega `Authorization` y refresca en 401, y protección de rutas Auth ↔ Main.
+
+### Semana 09 — Animaciones
+Entrada escalonada de tarjetas (fade + translate con delay `index*80`), scale 0.95 al presionar con spring, shimmer de carga con `Animated.loop` y `LayoutAnimation` al filtrar.
 
 ---
 
-##  Screenshots (tomar en simulador)
+## 📸 Prueba rápida (recorrido sugerido)
 
-1. Servicios lista con búsqueda
-2. Filtro por categoría
-3. Detalle servicio con incluye y botones
-4. Favoritos con badge
-5. Clientes, Personal, Agenda
-6. Pull-to-refresh y loading
-7. Formulario crear servicio
-
----
-
-##  Repo oficial bootcamp
-
-https://github.com/ergrato-dev/bc-reactnative
+1. Inicia sesión con `emilys / emilyspass` (Semana 08)
+2. Servicios: búsqueda, categorías, fade escalonado y shimmer (Semanas 02/09)
+3. `+ Nuevo`: validaciones Zod inline y creación persistida (Semana 06/07)
+4. Detalle: favoritos con badge y persistencia al reiniciar (Semana 04)
+5. Ajustes: tema claro/oscuro, vista grid, orden por precio, borrar caché y cerrar sesión (Semanas 07/08)
+6. Clientes, Personal y Agenda: listado de las 4 entidades del dominio (Semanas 03/05)
 
 ---
 
-##  Autor
+## 📝 Commits
 
-Cristian Alvarado Guerrero - Ficha 3311987 - SENA CGMLTI Bogotá - 2026
+Cada rama `week-XX` contiene exactamente **un commit** con el mensaje:
+
+```
+feat: entrega semana XX - <resumen de la semana> - CleanPro 3311987
+```
+
+La rama `main` conserva el historial completo de desarrollo con un commit por semana más los fixes de funcionamiento.

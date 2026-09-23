@@ -5,8 +5,17 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
-    "splash": { "backgroundColor": "#0d1117" },
-    "ios": { "bundleIdentifier": "com.cristianalvarado.cleanpro" },
-    "android": { "package": "com.cristianalvarado.cleanpro" }
+    "splash": {
+      "backgroundColor": "#0d1117"
+    },
+    "ios": {
+      "bundleIdentifier": "com.cristianalvarado.cleanpro"
+    },
+    "android": {
+      "package": "com.cristianalvarado.cleanpro"
+    },
+    "plugins": [
+      "expo-secure-store"
+    ]
   }
 }

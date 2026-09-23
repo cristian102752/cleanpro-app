@@ -5,13 +5,13 @@ import {
   FlatList,
   TextInput,
   StyleSheet,
-  ActivityIndicator,
   Pressable,
   RefreshControl,
   LayoutAnimation,
   Platform,
   UIManager,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ServicesStackParamList } from '../navigation/types';
@@ -21,7 +21,6 @@ import { LoadingShimmer } from '../components/LoadingShimmer';
 import { Service } from '../types';
 import { COLORS, TYPOGRAPHY, SPACING, RADIUS } from '../theme';
 
-// Habilita LayoutAnimation en Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
@@ -30,6 +29,7 @@ type NavProp = NativeStackNavigationProp<ServicesStackParamList, 'ServicesList'>
 
 export function ServicesListScreen(): React.JSX.Element {
   const navigation = useNavigation<NavProp>();
+  const insets = useSafeAreaInsets(); // Semana 07 fix - evita cámara/notch
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -37,7 +37,6 @@ export function ServicesListScreen(): React.JSX.Element {
 
   const categories: string[] = ['residencial', 'oficina', 'vidrios', 'postObra', 'industrial', 'desinfeccion'];
 
-  // Semana 09 - LayoutAnimation al filtrar
   useEffect(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
   }, [search, selectedCategory]);
@@ -61,7 +60,6 @@ export function ServicesListScreen(): React.JSX.Element {
     [navigation]
   );
 
-  // Semana 09 - Render con AnimatedServiceCard + index para stagger
   const renderItem = useCallback(
     ({ item, index }: { item: Service; index: number }) => (
       <AnimatedServiceCard service={item} index={index} onPress={handlePress} />
@@ -69,12 +67,11 @@ export function ServicesListScreen(): React.JSX.Element {
     [handlePress]
   );
 
-  // Semana 09 - Loading con Shimmer en vez de spinner
   if (isLoading) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.searchContainer}>
-          <View style={[styles.searchInput, { backgroundColor: COLORS.card }]} />
+          <View style={[styles.searchInput, { backgroundColor: COLORS.card, height: 48 }]} />
         </View>
         <LoadingShimmer />
       </View>
@@ -83,7 +80,7 @@ export function ServicesListScreen(): React.JSX.Element {
 
   if (isError) {
     return (
-      <View style={styles.centered}>
+      <View style={[styles.centered, { paddingTop: insets.top }]}>
         <Text style={styles.errorText}>❌ Error cargando servicios</Text>
         <Text style={styles.errorDetail}>{(error as Error)?.message}</Text>
         <Pressable style={styles.retryBtn} onPress={() => refetch()}>
@@ -94,8 +91,8 @@ export function ServicesListScreen(): React.JSX.Element {
   }
 
   return (
-    <View style={styles.container}>
-      {/* Search - Semana 02 */}
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      {/* Search - Fix: paddingTop con insets.top evita que quede sobre cámara/notch */}
       <View style={styles.searchContainer}>
         <TextInput
           placeholder="Buscar servicio... ej: residencial, vidrios"
@@ -104,10 +101,10 @@ export function ServicesListScreen(): React.JSX.Element {
           value={search}
           onChangeText={setSearch}
           clearButtonMode="while-editing"
+          returnKeyType="search"
         />
       </View>
 
-      {/* Categories - Semana 02 */}
       <View style={styles.categoriesContainer}>
         <FlatList
           horizontal
@@ -126,16 +123,16 @@ export function ServicesListScreen(): React.JSX.Element {
         />
       </View>
 
-      {/* Lista con animaciones Semana 09 */}
       <FlatList
         data={filtered}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         contentContainerStyle={styles.list}
+        keyboardShouldPersistTaps="handled"
         refreshControl={<RefreshControl refreshing={isFetching && !isLoading} onRefresh={refetch} tintColor={COLORS.accent} />}
         ListHeaderComponent={
           <View style={styles.header}>
-            <Text style={styles.count}>{filtered.length} servicios • CleanPro • Semana 09 Animado</Text>
+            <Text style={styles.count}>{filtered.length} servicios • CleanPro</Text>
             <Pressable style={styles.createBtn} onPress={() => navigation.navigate('CreateService')}>
               <Text style={styles.createBtnText}>+ Nuevo</Text>
             </Pressable>
@@ -154,26 +151,12 @@ export function ServicesListScreen(): React.JSX.Element {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  centered: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: SPACING.md,
-    padding: SPACING.lg,
-  },
-  loadingText: { ...TYPOGRAPHY.caption },
+  centered: { flex: 1, backgroundColor: COLORS.background, alignItems: 'center', justifyContent: 'center', gap: SPACING.md, padding: SPACING.lg },
   errorText: { ...TYPOGRAPHY.h3, color: COLORS.error },
   errorDetail: { ...TYPOGRAPHY.caption, textAlign: 'center' },
-  retryBtn: {
-    backgroundColor: COLORS.accent,
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm,
-    borderRadius: RADIUS.md,
-    marginTop: SPACING.sm,
-  },
+  retryBtn: { backgroundColor: COLORS.accent, paddingHorizontal: SPACING.lg, paddingVertical: SPACING.sm, borderRadius: RADIUS.md, marginTop: SPACING.sm },
   retryText: { color: COLORS.background, fontWeight: '600' },
-  searchContainer: { padding: SPACING.base, paddingBottom: SPACING.sm },
+  searchContainer: { padding: SPACING.base, paddingBottom: SPACING.sm, backgroundColor: COLORS.background },
   searchInput: {
     backgroundColor: COLORS.surface,
     borderRadius: RADIUS.lg,
@@ -183,9 +166,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
     fontSize: TYPOGRAPHY.size.base,
+    height: 48,
   },
   categoriesContainer: { paddingBottom: SPACING.sm },
-  categoriesList: { paddingHorizontal: SPACING.base, gap: SPACING.sm },
+  categoriesList: { paddingHorizontal: SPACING.base },
   catChip: {
     backgroundColor: COLORS.surface,
     paddingHorizontal: SPACING.md,
@@ -198,15 +182,9 @@ const styles = StyleSheet.create({
   catChipActive: { backgroundColor: COLORS.accentDim, borderColor: COLORS.accent },
   catText: { fontSize: TYPOGRAPHY.size.sm, color: COLORS.textSecondary, textTransform: 'capitalize' },
   catTextActive: { color: COLORS.accent, fontWeight: '600' },
-  list: { padding: SPACING.base, paddingTop: 0 },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: SPACING.md,
-    marginTop: SPACING.sm,
-  },
-  count: { ...TYPOGRAPHY.label, textTransform: 'uppercase', letterSpacing: 0.5, flex: 1 },
+  list: { padding: SPACING.base, paddingTop: 0, paddingBottom: 100 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACING.md, marginTop: SPACING.sm },
+  count: { ...TYPOGRAPHY.label, textTransform: 'uppercase', flex: 1 },
   createBtn: { backgroundColor: COLORS.accent, paddingHorizontal: SPACING.md, paddingVertical: 6, borderRadius: RADIUS.full },
   createBtnText: { color: COLORS.background, fontWeight: '700', fontSize: TYPOGRAPHY.size.sm },
   empty: { alignItems: 'center', paddingTop: 60, gap: SPACING.sm },

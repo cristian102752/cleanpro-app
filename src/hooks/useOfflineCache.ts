@@ -4,6 +4,7 @@ import { asyncStorage, STORAGE_KEYS } from '../services/storage';
 import { Service } from '../types';
 
 // Semana 07 - Patrón offline-first con TanStack Query + AsyncStorage
+// FIX: Validación de keys para evitar "Invalid key - must be a string"
 
 export function useOfflineServices() {
   const [cachedServices, setCachedServices] = useState<Service[] | null>(null);
@@ -11,7 +12,6 @@ export function useOfflineServices() {
   
   const { data, isLoading, isError, refetch, isFetching } = useServices();
 
-  // Cuando llegan datos de la API, guarda en caché
   useEffect(() => {
     if (data) {
       asyncStorage.setItem(STORAGE_KEYS.SERVICES_CACHE, data);
@@ -20,7 +20,6 @@ export function useOfflineServices() {
     }
   }, [data]);
 
-  // Si hay error, intenta cargar caché
   useEffect(() => {
     async function loadCache() {
       if (isError) {
@@ -34,7 +33,6 @@ export function useOfflineServices() {
     loadCache();
   }, [isError]);
 
-  // Cargar caché inicial mientras hace fetch
   useEffect(() => {
     async function loadInitialCache() {
       const cached = await asyncStorage.getItem<Service[]>(STORAGE_KEYS.SERVICES_CACHE);
@@ -57,8 +55,20 @@ export function useOfflineServices() {
 
 export function useClearCache() {
   const clearCache = async () => {
-    await asyncStorage.removeItem(STORAGE_KEYS.SERVICES_CACHE);
-    await asyncStorage.removeItem(STORAGE_KEYS.CLIENTS_CACHE);
+    try {
+      // FIX: Validar keys antes de borrar para evitar error RCTMakeAndLogError
+      if (STORAGE_KEYS.SERVICES_CACHE && typeof STORAGE_KEYS.SERVICES_CACHE === 'string') {
+        await asyncStorage.removeItem(STORAGE_KEYS.SERVICES_CACHE);
+      }
+      if (STORAGE_KEYS.CLIENTS_CACHE && typeof STORAGE_KEYS.CLIENTS_CACHE === 'string') {
+        await asyncStorage.removeItem(STORAGE_KEYS.CLIENTS_CACHE);
+      }
+      // También borra mmkv fallback keys
+      await asyncStorage.removeItem(`mmkv:${STORAGE_KEYS.PREFERENCES}`);
+      console.log('[Cache] Borrado correctamente');
+    } catch (e) {
+      console.error('[Cache] Error borrando', e);
+    }
   };
   return { clearCache };
 }

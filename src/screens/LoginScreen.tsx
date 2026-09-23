@@ -11,10 +11,16 @@ import { useNavigation } from '@react-navigation/native';
 export function LoginScreen(): React.JSX.Element {
   const navigation = useNavigation();
   const { login, isLoading, error, clearError } = useAuthStore();
-  const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { username: 'kminchelle', password: '0lelplR' },
+    defaultValues: { username: 'emilys', password: 'emilyspass' },
   });
+
   const onSubmit = async (data: LoginFormData) => {
     try {
       clearError();
@@ -24,6 +30,24 @@ export function LoginScreen(): React.JSX.Element {
       Alert.alert('Error login', error || e.message);
     }
   };
+
+  const handleDemoLogin = async () => {
+    try {
+      clearError();
+      await login('emilys', 'emilyspass');
+    } catch (e: any) {
+      // Fallback demo sin API si dummyjson falla
+      Alert.alert('Modo Demo', 'API dummyjson no responde, entrando en modo demo local');
+      const { secureStorage } = await import('../services/storage');
+      await secureStorage.setItem('accessToken', 'demo-token');
+      await secureStorage.setItem('refreshToken', 'demo-refresh');
+      await secureStorage.setItem('user', JSON.stringify({ id: 1, username: 'emilys', email: 'emily.johnson@x.dummyjson.com', firstName: 'Emily', lastName: 'Johnson', image: 'https://dummyjson.com/icon/emilys/128' }));
+      // Fuerza auth
+      const { useAuthStore } = await import('../stores/authStore');
+      useAuthStore.setState({ user: { id: 1, username: 'emilys', email: 'emily.johnson@x.dummyjson.com', firstName: 'Emily', lastName: 'Johnson', image: 'https://dummyjson.com/icon/emilys/128' } as any, accessToken: 'demo-token', refreshToken: 'demo-refresh', isAuthenticated: true, isLoading: false });
+    }
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
       <View style={styles.header}>
@@ -31,24 +55,45 @@ export function LoginScreen(): React.JSX.Element {
         <Text style={styles.title}>Iniciar Sesión</Text>
         <Text style={styles.subtitle}>Semana 08 - JWT + SecureStore + Zustand authStore</Text>
       </View>
+
       <View style={styles.form}>
-        <FormField name="username" control={control} label="Usuario *" placeholder="kminchelle" autoCapitalize="none" error={errors.username} hint="Demo: kminchelle" />
-        <FormField name="password" control={control} label="Contraseña *" placeholder="••••••" secureTextEntry error={errors.password} hint="Demo: 0lelplR" />
-        {error && <View style={styles.errorBox}><Text style={styles.errorText}>❌ {error}</Text></View>}
+        <FormField name="username" control={control} label="Usuario *" placeholder="emilys" autoCapitalize="none" error={errors.username} hint="Demo: emilys" />
+        <FormField name="password" control={control} label="Contraseña *" placeholder="emilyspass" secureTextEntry error={errors.password} hint="Demo: emilyspass" />
+
+        {error && (
+          <View style={styles.errorBox}>
+            <Text style={styles.errorText}>❌ {error}</Text>
+          </View>
+        )}
+
         <Pressable style={[styles.btn, (isLoading || isSubmitting) && styles.btnDisabled]} onPress={handleSubmit(onSubmit)} disabled={isLoading || isSubmitting}>
           {isLoading || isSubmitting ? <ActivityIndicator color="#000" /> : <Text style={styles.btnText}>Ingresar (JWT)</Text>}
         </Pressable>
+
+        <Pressable style={[styles.btn, { backgroundColor: COLORS.surface, borderWidth: 1, borderColor: COLORS.border }]} onPress={handleDemoLogin}>
+          <Text style={[styles.btnText, { color: COLORS.textPrimary }]}>🚀 Entrar en Modo Demo (sin API)</Text>
+        </Pressable>
+
         <View style={styles.demoBox}>
-          <Text style={styles.demoTitle}>🔑 Credenciales demo (dummyjson.com):</Text>
-          <Text style={styles.demoText}>Usuario: kminchelle{'\n'}Contraseña: 0lelplR{'\n\n'}Usuario: emilys{'\n'}Contraseña: emilyspass</Text>
+          <Text style={styles.demoTitle}>🔑 Credenciales que SÍ funcionan (2026):</Text>
+          <Text style={styles.demoText}>Usuario: emilys{'\n'}Contraseña: emilyspass{'\n\n'}Si falla, usa el botón Modo Demo arriba</Text>
         </View>
+
         <Pressable onPress={() => (navigation as any).navigate('Register')}>
           <Text style={styles.link}>¿No tienes cuenta? Regístrate</Text>
         </Pressable>
       </View>
+
+      <View style={styles.infoBox}>
+        <Text style={styles.infoTitle}>💡 Semana 08 - Flujo:</Text>
+        <Text style={styles.infoText}>
+          1. POST /auth/login → accessToken + refreshToken{'\n'}2. Guarda tokens en SecureStore (cifrado){'\n'}3. Zustand authStore isAuthenticated=true{'\n'}4. Interceptor Axios agrega Authorization header{'\n'}5. Si 401 → refresh automático
+        </Text>
+      </View>
     </ScrollView>
   );
 }
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   content: { padding: SPACING.lg, gap: SPACING.lg, paddingBottom: 100 },
@@ -66,4 +111,7 @@ const styles = StyleSheet.create({
   demoTitle: { fontSize: 12, fontWeight: '700', color: COLORS.textPrimary, marginBottom: 4 },
   demoText: { fontSize: 12, color: COLORS.textSecondary, lineHeight: 18 },
   link: { color: COLORS.accent, textAlign: 'center', marginTop: SPACING.sm, fontSize: 14 },
+  infoBox: { backgroundColor: COLORS.card, padding: SPACING.md, borderRadius: RADIUS.md, borderWidth: 1, borderColor: COLORS.border },
+  infoTitle: { fontSize: 12, fontWeight: '700', color: COLORS.textPrimary, marginBottom: 4 },
+  infoText: { fontSize: 11, color: COLORS.textMuted, lineHeight: 16 },
 });
